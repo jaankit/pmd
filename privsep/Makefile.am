@@ -62,6 +62,7 @@ pmdprivsepd_LDADD =  \
     -lvmdirclient \
     -ltdnf \
     -lnetmgr \
+    -lnetwork_config_manager \
     -lpthread \
     -lcrypt \
     -lcrypto \

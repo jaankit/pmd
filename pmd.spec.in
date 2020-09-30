@@ -5,18 +5,20 @@
 Summary:	Photon Management Daemon
 Name:		pmd
 Version:	@VERSION@
-Release:	5%{?dist}
+Release:	6%{?dist}
 License:	Apache 2.0
 URL:            https://www.github.com/vmware/pmd
 Group:		Applications/System
 Requires:	likewise-open >= 6.2.9
 Requires:       netmgmt
+Requires:       network-config-manager
 Requires:	systemd
 Requires:	tdnf >= 1.2.0
 Requires:	c-rest-engine
 Requires:       lightwave-client-libs
 Requires:       jansson
 Requires:       copenapi
+Requires:       glib
 Requires:       %{name}-libs = %{version}-%{release}
 BuildRequires:	popt-devel
 BuildRequires:	rpm-devel
@@ -24,12 +26,14 @@ BuildRequires:	tdnf-devel >= 1.2.0
 BuildRequires:	c-rest-engine-devel
 BuildRequires:  lightwave-devel
 BuildRequires:	netmgmt-devel
+BuildRequires:  network-config-manager-devel
 BuildRequires:  jansson-devel
 BuildRequires:  copenapi-devel
 BuildRequires:	likewise-open-devel >= 6.2.9
 BuildRequires:	krb5-devel
 BuildRequires:	glib-devel
 BuildRequires:	curl-devel
+BuildRequires:	glib-devel
 Source0:	%{name}-%{version}.tar.gz
 
 %description
@@ -302,7 +306,7 @@ rm -rf %{buildroot}/*
     %{_python3_sitearch}/%{name}_python-*.egg-info
 
 %changelog
-*       Fri Aug 21 2020 Tapas Kundu <tkundu@vmware.com> 0.1-5
+*       Fri Aug 21 2020 Tapas Kundu <tkundu@vmware.com> 0.1-6
 -       Added clean, check-local, provides and check-update
 *       Fri Jul 24 2020 Tapas Kundu <tkundu@vmware.com> 0.1-4
 -       Add search command

@@ -22,6 +22,7 @@
 #include <pmd_pkgmgmt.h>
 #include <pmd_rolemgmt.h>
 #include <netmgmt/netmgr.h>
+#include <network-config-manager.h>
 #include "../common/defines.h"
 #include "../common/structs.h"
 #include "../common/prototypes.h"

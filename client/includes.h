@@ -59,5 +59,6 @@
 #include "prototypes.h"
 
 #include <netmgmt/netmgr.h>
+#include <network-config-manager.h>
 #include "pmd_netmgr.h"
 #include <gssapi_creds_plugin.h>

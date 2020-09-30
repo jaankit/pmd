@@ -2044,6 +2044,8 @@ netmgr_privsep_rpc_set_hostname(
 {
     uint32_t dwError = 0;
     char *pszHostname = NULL;
+    int argc = 0;
+    char *argv[2] = {NULL};
 
     dwError = check_connection_integrity(hBinding);
     BAIL_ON_PMD_ERROR(dwError);
@@ -2057,7 +2059,8 @@ netmgr_privsep_rpc_set_hostname(
     dwError = PMDAllocateStringAFromW(pwszHostname, &pszHostname);
     BAIL_ON_PMD_ERROR(dwError);
 
-    dwError = nm_set_hostname(pszHostname);
+    argv[1] = pszHostname;
+    dwError = ncm_set_system_hostname(argc, argv);
     BAIL_ON_PMD_ERROR(dwError);
 
 cleanup:

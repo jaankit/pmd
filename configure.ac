@@ -214,6 +214,9 @@ AC_CHECK_LIB(
 
 AC_SUBST(LWBASE_LIBS)
 
+GLIB_PREFIX="`$PKG_CONFIG --variable=prefix glib-2.0`"
+AC_SUBST(GLIB_PREFIX)
+
 #tdnf
 PKG_CHECK_MODULES([TDNF], [tdnf], [have_libtdnf=yes], [have_libtdnf=no])
 AM_CONDITIONAL([TDNF],  [test "$have_libtdnf" = "yes"])
@@ -229,6 +232,9 @@ AM_CONDITIONAL([JANSSON],  [test "$have_libjansson" = "yes"])
 #libcurl
 PKG_CHECK_MODULES([LIBCURL], [libcurl], [have_libcurl=yes], [have_libcurl=no])
 AM_CONDITIONAL([LIBCURL],  [test "$have_libcurl" = "yes"])
+
+PKG_CHECK_MODULES([GLIB], [glib-2.0], [have_libglib-2.0=yes], [have_libglib-2.0=no])
+AM_CONDITIONAL([GLIB],  [test "$have_libglib-2.0" = "yes"])
 
 #copenapi
 PKG_CHECK_MODULES([COPENAPI], [copenapi], [have_libcopenapi=yes], [have_libcopenapi=no])

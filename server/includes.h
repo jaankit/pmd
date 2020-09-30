@@ -39,6 +39,7 @@
 #include <vmrest.h>
 #include <tdnf/tdnf.h>
 #include <netmgmt/netmgr.h>
+#include <network-config-manager.h>
 #include <jansson.h>
 #include <copenapi/copenapi.h>
 #include <pmd.h>

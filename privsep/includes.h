@@ -43,6 +43,7 @@
 #include <vmrest.h>
 #include <tdnf/tdnf.h>
 #include <netmgmt/netmgr.h>
+#include <network-config-manager.h>
 #include <pmd.h>
 #include <pmd_fwmgmt.h>
 #include <pmd_usermgmt.h>
