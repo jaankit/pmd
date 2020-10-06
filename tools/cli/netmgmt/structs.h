@@ -15,6 +15,9 @@
 
 #pragma once
 
+#include <glib.h>
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -27,6 +30,24 @@ typedef struct _NET_CLI_CMD_MAP
     char* pszCmdName;
     PFN_NET_CMD pFnCmd;
 }NET_CLI_CMD_MAP, *PNET_CLI_CMD_MAP;
+
+
+
+typedef uint32_t (*CommandRunFunction)(PPMDHANDLE hPMD, int argc, char **argv);
+
+typedef struct Cli {
+        const char *name;
+        unsigned min_args, max_args;
+        bool default_command;
+
+        CommandRunFunction run;
+} Cli;
+
+typedef struct CliManager {
+        GHashTable *hash;
+
+        Cli *commands;
+} CliManager;
 
 #ifdef __cplusplus
 }

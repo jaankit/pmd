@@ -22,27 +22,7 @@
 #include "netmgmt_h.h"
 #include <netmgmt/netmgr.h>
 #include <netmgmt/netmgrcli.h>
-#include <network-config-manager.h>
 #include "pmd_netmgr.h"
+#include <network-config-manager.h>
 #include "alloc-util.h"
 #include "log.h"
-#include <glib.h>
-#include <stdbool.h>
-
-#define WORD_ANY ((unsigned) -1)
-
-typedef int (*CommandRunFunction)(PPMDHANDLE hPMD, int argc, char **argv);
-
-typedef struct Cli {
-        const char *name;
-        unsigned min_args, max_args;
-        bool default_command;
-
-        CommandRunFunction run;
-} Cli;
-
-typedef struct CliManager {
-        GHashTable *hash;
-
-        Cli *commands;
-} CliManager;

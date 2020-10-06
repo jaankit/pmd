@@ -15,12 +15,57 @@
 
 #include "includes.h"
 
+
 uint32_t
 netmgr_print_error(
     PPMDHANDLE hPMD,
     uint32_t dwErrorCode
     );
 
+uint32_t
+ncmcli_system_link_status(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+)
+{
+    uint32_t dwError = 0;
+    if (ncm_cli_run(argc, argv) < 0)
+    {
+        dwError = ERROR_PMD_NET_CMD_FAIL;
+    }
+    BAIL_ON_CLI_ERROR(dwError);
+
+cleanup:
+    return dwError;
+error:
+    goto cleanup;
+}
+
+uint32_t
+ncmcli_set_system_hostname(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[])
+{
+    uint32_t dwError = 0;
+
+    if(!hPMD || !argv[1])
+    {
+        dwError = ERROR_PMD_INVALID_PARAMETER;
+        BAIL_ON_CLI_ERROR(dwError);
+    }
+    dwError = netmgr_client_set_hostname(hPMD, argv[1]);
+    BAIL_ON_CLI_ERROR(dwError);
+
+cleanup:
+    return dwError;
+error:
+    goto cleanup;
+
+}
+
+#if 0
 static const char *
 link_state_to_string(
     NET_LINK_STATE state
@@ -1100,32 +1145,6 @@ error:
     goto cleanup;
 }
 
-int
-ncmcli_set_system_hostname(
-    PPMDHANDLE hPMD,
-    int argc,
-    char *argv[])
-{
-    uint32_t dwError = 0;
-//    char *pszHostname = NULL;
-
-    if(!hPMD || !argv[1])
-    {
-        dwError = ERROR_PMD_INVALID_PARAMETER;
-        BAIL_ON_CLI_ERROR(dwError);
-    }
-    dwError = netmgr_client_set_hostname(hPMD, argv[1]);
-  //  pszHostname = NULL;
-    BAIL_ON_CLI_ERROR(dwError);
-
-cleanup:
-    /* Free allocated memory */
-//    PMD_CLI_SAFE_FREE_MEMORY(pszHostname);
-    return dwError;
-error:
-    goto cleanup;
-
-}
 static uint32_t
 cmd_hostname(
     PPMDHANDLE hPMD,
@@ -1461,93 +1480,41 @@ NETMGR_CLI_HANDLER cmdHandler[] =
     { CMD_ERR_INFO,            cmd_err_info        },
     { CMD_NET_INFO,            cmd_net_info        },
 };
+#endif
 
-int cli_manager_new(const Cli *cli_commands, CliManager **ret) {
-        _auto_cleanup_ CliManager *m = NULL;
-        int i;
-
-        assert(cli_commands);
-
-        m = new0(CliManager, 1);
-        if (!m)
-                return log_oom();
-
-        *m = (CliManager) {
-               .hash = g_hash_table_new(g_str_hash, g_str_equal),
-               .commands = (Cli *) cli_commands,
+static int parse_argv(int argc, char * const* argv)
+{
+        static const struct option options[] = {
+                { "help",      no_argument,       NULL, 'h'           },
+                { "version",   no_argument,       NULL, 'v'           },
+                {}
         };
+        int c;
 
-        if (!m->hash)
-                return log_oom();
+        assert(argc >= 0);
+        assert(argv);
 
-        for (i = 0;; i++) {
-                if (cli_commands[i].name) {
-                        if (!g_hash_table_insert(m->hash, (gpointer *) cli_commands[i].name, (gpointer *) &cli_commands[i]))
-                                continue;
-                } else
-                        break;
-        }
+        optind = 1;
+        while ((c = getopt_long(argc, argv, "hv", options, NULL)) >= 0)
+        {
 
-        *ret = steal_pointer(m);
+                switch (c)
+                {
 
-        return 0;
-}
+                case 'h':
+                        return ncm_cli_run(argc, (char **)argv);
 
-void cli_unrefp(CliManager **m) {
-        if (m && *m) {
-                g_hash_table_unref((*m)->hash);
-                free(*m);
-        }
-}
+                case 'v':
+                        return ncm_show_version();
 
-static Cli *cli_get_command(const CliManager *m, const char *name) {
-        assert(m);
-        assert(name);
+                case '?':
+                        return -EINVAL;
 
-        return g_hash_table_lookup(m->hash, name);
-}
-
-int cli_run_command(const CliManager *m, PPMDHANDLE pHandle, int argc, char *argv[]) {
-        Cli *command = NULL;
-        int remaining_argc;
-        char *name;
-
-        assert(m);
-
-        remaining_argc = argc - 2;
-
-        argv += 2;
-        optind = 0;
-        name = argv[0];
-
-        /* run default if no command specified */
-        if (!name) {
-                int i;
-
-                for (i = 0;; i++) {
-                        if (m->commands[i].default_command)
-                                command = m->commands;
-                        remaining_argc = 1;
-                        return command->run(pHandle, remaining_argc, argv);
+                default:
+                        assert(0);
                 }
         }
-
-        command = cli_get_command(m, name);
-        if (!command) {
-                log_warning("Unknown cli command %s.", name);
-                return -EINVAL;
-        }
-
-        if (command->min_args != WORD_ANY && (unsigned) remaining_argc <= command->min_args) {
-                log_warning("Too few arguments.");
-                return -EINVAL;
-        }
-
-        if (command->max_args != WORD_ANY && (unsigned) remaining_argc > command->max_args) {
-                log_warning("Too many arguments.");
-                return -EINVAL;
-        }
-        return command->run(pHandle, remaining_argc, argv);
+        return 1;
 }
 
 uint32_t
@@ -1557,124 +1524,40 @@ netmgr_main(
     PPMD_CMD_ARGS pMainArgs)
 {
     uint32_t dwError = 0;
-    // size_t i, cmdCount = sizeof(cmdHandler)/sizeof(NETMGR_CLI_HANDLER);
     PPMDHANDLE hPMD = NULL;
-    PNETMGR_CMD pCmd = NULL;
-    char *arg1;
     _cleanup_(cli_unrefp) CliManager *m = NULL;
     int r;
-    Cli *command;
-    static const Cli commands[] = {
-#if 0
-                { "status",                       WORD_ANY, WORD_ANY, true, ncmcli_system_status },
-                { "show",                         WORD_ANY, WORD_ANY, false, ncmcli_link_status },
-                { "set-mtu",                      2,        WORD_ANY, false, ncmcli_link_set_mtu },
-                { "set-mac",                      2,        WORD_ANY, false, ncmcli_link_set_mac },
-                { "set-link-mode",                2,        WORD_ANY, false, ncmcli_link_set_mode },
-                { "set-dhcp-mode",                2,        WORD_ANY, false, ncmcli_link_set_dhcp_mode },
-                { "set-dhcp4-client-identifier",  2,        WORD_ANY, false, ncmcli_link_set_dhcp4_client_identifier},
-                { "set-dhcp-iaid",                2,        WORD_ANY, false, ncmcli_link_set_dhcp_client_iaid},
-                { "set-dhcp-duid",                2,        WORD_ANY, false, ncmcli_link_set_dhcp_client_duid},
-                { "set-link-state",               2,        WORD_ANY, false, ncmcli_link_update_state },
-                { "add-link-address",             2,        WORD_ANY, false, ncmcli_link_add_address },
-                { "delete-link-address",          1,        WORD_ANY, false, ncmcli_link_delete_address },
-                { "add-default-gateway",          2,        WORD_ANY, false, ncmcli_link_add_default_gateway },
-                { "delete-gateway",               1,        WORD_ANY, false, ncmcli_link_delete_gateway_or_route },
-                { "add-route",                    2,        WORD_ANY, false, ncmcli_link_add_route },
-                { "delete-route",                 1,        WORD_ANY, false, ncmcli_link_delete_gateway_or_route },
-#endif
-                { "set-hostname",                 1,        WORD_ANY, false, ncmcli_set_system_hostname },
-#if 0
-                { "show-dns",                     WORD_ANY, WORD_ANY, false, ncmcli_show_dns_server },
-                { "add-dns",                      2,        WORD_ANY, false, ncmcli_add_dns_server },
-                { "add-domain",                   1,        WORD_ANY, false, ncmcli_add_dns_domains },
-                { "show-domains",                 WORD_ANY, WORD_ANY, false, ncmcli_show_dns_server_domains },
-                { "revert-resolve-link",          1,        WORD_ANY, false, ncmcli_revert_resolve_link },
-                { "set-link-local-address",       2,        WORD_ANY, false, ncmcli_link_set_network_section_bool },
-                { "set-ipv4ll-route",             2,        WORD_ANY, false, ncmcli_link_set_network_section_bool },
-                { "set-llmnr",                    2,        WORD_ANY, false, ncmcli_link_set_network_section_bool },
-                { "set-multicast-dns",            2,        WORD_ANY, false, ncmcli_link_set_network_section_bool },
-                { "set-lldp",                     2,        WORD_ANY, false, ncmcli_link_set_network_section_bool },
-                { "set-emit-lldp",                2,        WORD_ANY, false, ncmcli_link_set_network_section_bool },
-                { "set-ipforward",                2,        WORD_ANY, false, ncmcli_link_set_network_section_bool },
-                { "set-ipv6acceptra",             2,        WORD_ANY, false, ncmcli_link_set_network_section_bool },
-                { "set-ipmasquerade",             2,        WORD_ANY, false, ncmcli_link_set_network_section_bool },
-                { "set-dhcp4-use-dns",            2,        WORD_ANY, false, ncmcli_link_set_dhcp4_section },
-                { "set-dhcp4-use-domains",        2,        WORD_ANY, false, ncmcli_link_set_dhcp4_section },
-                { "set-dhcp4-use-ntp",            2,        WORD_ANY, false, ncmcli_link_set_dhcp4_section },
-                { "set-dhcp4-use-mtu",            2,        WORD_ANY, false, ncmcli_link_set_dhcp4_section },
-                { "set-dhcp4-use-timezone",       2,        WORD_ANY, false, ncmcli_link_set_dhcp4_section },
-                { "set-dhcp4-use-routes",         2,        WORD_ANY, false, ncmcli_link_set_dhcp4_section },
-                { "set-dhcp6-use-dns",            2,        WORD_ANY, false, ncmcli_link_set_dhcp6_section },
-                { "set-dhcp6-use-domains",        2,        WORD_ANY, false, ncmcli_link_set_dhcp6_section },
-                { "set-dhcp6-use-ntp",            2,        WORD_ANY, false, ncmcli_link_set_dhcp6_section },
-                { "set-dhcp6-use-mtu",            2,        WORD_ANY, false, ncmcli_link_set_dhcp6_section },
-                { "set-dhcp6-use-timezone",       2,        WORD_ANY, false, ncmcli_link_set_dhcp6_section },
-                { "set-dhcp6-use-routes",         2,        WORD_ANY, false, ncmcli_link_set_dhcp6_section },
-                { "add-ntp",                      2,        WORD_ANY, false, ncmcli_link_add_ntp },
-                { "set-ntp",                      2,        WORD_ANY, false, ncmcli_link_add_ntp },
-                { "delete-ntp",                   2,        WORD_ANY, false, ncmcli_link_delete_ntp },
-                { "disable-ipv6",                 1,        WORD_ANY, false, ncmcli_link_enable_ipv6 },
-                { "enable-ipv6",                  1,        WORD_ANY, false, ncmcli_link_enable_ipv6 },
-                { "reload",                       WORD_ANY, WORD_ANY, false, ncmcli_network_reload },
-                { "reconfigure",                  WORD_ANY, WORD_ANY, false, ncmcli_link_reconfigure },
-                { "generate-config-from-yaml",    1,        WORD_ANY, false, ncmcli_generate_networkd_config_from_yaml },
-                { "apply-yaml-config"           , WORD_ANY, WORD_ANY, false, ncmcli_generate_networkd_config_from_yaml },
-                { "generate-config-from-cmdline", WORD_ANY, WORD_ANY, false, ncmcli_generate_networkd_config_from_command_line },
-#endif
-                {}
-        };
 
-    r = cli_manager_new(commands, &m);
-        if (r < 0)
-                return r;
-
-            dwError = rpc_open(
-                              "net",
-                              pMainArgs->pszServer,
-                              pMainArgs->pszUser,
-                              pMainArgs->pszDomain,
-                              pMainArgs->pszPass,
-                              pMainArgs->pszSpn,
-                              &hPMD);
-            BAIL_ON_CLI_ERROR(dwError);
-    dwError = cli_run_command(m, hPMD, argc, (char **)argv);
-            BAIL_ON_CLI_ERROR(dwError);
-#if 0
-    arg1 = (char *)argv[1];
-    if (argc > 2)
+    r = parse_argv(argc, argv);
+    if (r < 0)
     {
-        strcpy(arg1, argv[2]);
+          dwError = ERROR_PMD_NET_ALLOCATE_FAIL;
+          BAIL_ON_CLI_ERROR(dwError);
+    } else if (r == 0)
+    {
+          goto cleanup;
     }
-    dwError = netmgrcli_parse_cmdline(argc, (char **)argv, &pCmd);
+    if (cli_manager_new(&m) < 0)
+    {
+          dwError = ERROR_PMD_NET_ALLOCATE_FAIL;
+          BAIL_ON_CLI_ERROR(dwError);
+    }
+
+    dwError = rpc_open(
+                      "net",
+                      pMainArgs->pszServer,
+                      pMainArgs->pszUser,
+                      pMainArgs->pszDomain,
+                      pMainArgs->pszPass,
+                      pMainArgs->pszSpn,
+                      &hPMD);
     BAIL_ON_CLI_ERROR(dwError);
-
-    for (i = 0; i < cmdCount; i++)
-    {
-        if (pCmd->id == cmdHandler[i].id)
-        {
-
-            dwError = rpc_open(
-                              "net",
-                              pMainArgs->pszServer,
-                              pMainArgs->pszUser,
-                              pMainArgs->pszDomain,
-                              pMainArgs->pszPass,
-                              pMainArgs->pszSpn,
-                              &hPMD);
-            BAIL_ON_CLI_ERROR(dwError);
-            dwError = cmdHandler[i].pFnCmd(hPMD, pCmd);
-            
-            BAIL_ON_CLI_ERROR(dwError);
-            break;
-        }
-    }
-#endif
+    dwError = cli_run_command(m, hPMD, argc, (char **)argv);
+    BAIL_ON_CLI_ERROR(dwError);
 cleanup:
-    rpc_free_handle(hPMD);
-    if(pCmd)
+    if(hPMD)
     {
-        netmgrcli_free_cmd(pCmd);
+        rpc_free_handle(hPMD);
     }
     return dwError;
 

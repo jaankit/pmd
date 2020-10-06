@@ -15,8 +15,29 @@
 
 #pragma once
 
+#define WORD_ANY ((unsigned) -1)
+
 uint32_t
 netmgr_version_cmd(
     PPMDHANDLE hPMD,
     PNET_CMD_ARGS pCmdArgs
     );
+
+int cli_manager_new(CliManager **ret);
+void cli_unrefp(CliManager **m);
+uint32_t cli_run_command(const CliManager *m, PPMDHANDLE pHandle, int argc, char *argv[]);
+
+
+uint32_t
+ncmcli_system_link_status(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+);
+
+uint32_t
+ncmcli_set_system_hostname(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+);
