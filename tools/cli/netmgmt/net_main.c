@@ -23,14 +23,34 @@ netmgr_print_error(
     );
 
 uint32_t
-ncmcli_system_link_status(
+ncmcli_system_status(
     PPMDHANDLE hPMD,
     int argc,
     char *argv[]
 )
 {
     uint32_t dwError = 0;
-    if (ncm_cli_run(argc, argv) < 0)
+    if (ncm_system_status(argc, argv) < 0)
+    {
+        dwError = ERROR_PMD_NET_CMD_FAIL;
+    }
+    BAIL_ON_CLI_ERROR(dwError);
+
+cleanup:
+    return dwError;
+error:
+    goto cleanup;
+}
+
+uint32_t
+ncmcli_link_status(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+)
+{
+    uint32_t dwError = 0;
+    if (ncm_link_status(argc, argv) < 0)
     {
         dwError = ERROR_PMD_NET_CMD_FAIL;
     }
@@ -1487,6 +1507,8 @@ static int parse_argv(int argc, char * const* argv)
         static const struct option options[] = {
                 { "help",      no_argument,       NULL, 'h'           },
                 { "version",   no_argument,       NULL, 'v'           },
+                { "server",    required_argument, NULL, 's'           },
+                { "user",      required_argument, NULL, 'u'           },
                 {}
         };
         int c;
@@ -1495,17 +1517,21 @@ static int parse_argv(int argc, char * const* argv)
         assert(argv);
 
         optind = 1;
-        while ((c = getopt_long(argc, argv, "hv", options, NULL)) >= 0)
+        while ((c = getopt_long(argc, argv, "hvs:u:", options, NULL)) >= 0)
         {
 
                 switch (c)
                 {
 
                 case 'h':
-                        return ncm_cli_run(argc, (char **)argv);
+                        return 0;
 
                 case 'v':
                         return ncm_show_version();
+
+                case 's':
+                case 'u':
+                        return 1;
 
                 case '?':
                         return -EINVAL;

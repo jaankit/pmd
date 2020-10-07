@@ -29,7 +29,14 @@ uint32_t cli_run_command(const CliManager *m, PPMDHANDLE pHandle, int argc, char
 
 
 uint32_t
-ncmcli_system_link_status(
+ncmcli_system_status(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+);
+
+uint32_t
+ncmcli_link_status(
     PPMDHANDLE hPMD,
     int argc,
     char *argv[]
