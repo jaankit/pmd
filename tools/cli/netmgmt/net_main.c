@@ -96,8 +96,6 @@ ncmcli_link_set_mac(
 )
 {
     uint32_t dwError = 0;
-    char *pszEnd = NULL;
-    uint32_t mtu = 0;
 
     if(!hPMD || !argv[1] || !argv[2])
     {
@@ -137,6 +135,52 @@ ncmcli_link_set_mode(
 	linkMode = LINK_AUTO;
     }
     dwError = netmgr_client_set_link_mode(hPMD, argv[1], linkMode);
+    BAIL_ON_CLI_ERROR(dwError);
+
+cleanup:
+    return dwError;
+error:
+    goto cleanup;
+}
+
+uint32_t
+ncmcli_link_set_dhcp_client_iaid(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+)
+{
+    uint32_t dwError = 0;
+
+    if(!hPMD || !argv[1] || !argv[2])
+    {
+        dwError = ERROR_PMD_INVALID_PARAMETER;
+        BAIL_ON_CLI_ERROR(dwError);
+    }
+    dwError = netmgr_client_set_iaid(hPMD, argv[1], atoi(argv[2]));
+    BAIL_ON_CLI_ERROR(dwError);
+
+cleanup:
+    return dwError;
+error:
+    goto cleanup;
+}
+
+uint32_t
+ncmcli_link_set_dhcp_client_duid(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+)
+{
+    uint32_t dwError = 0;
+
+    if(!hPMD || !argv[1] || !argv[2])
+    {
+        dwError = ERROR_PMD_INVALID_PARAMETER;
+        BAIL_ON_CLI_ERROR(dwError);
+    }
+    dwError = netmgr_client_set_duid(hPMD, argv[1], argv[2]);
     BAIL_ON_CLI_ERROR(dwError);
 
 cleanup:

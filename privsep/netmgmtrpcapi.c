@@ -1706,6 +1706,9 @@ netmgr_privsep_rpc_set_iaid(
 {
     uint32_t dwError = 0;
     char *pszIfName = NULL;
+    char *pszIaid = NULL;
+    int argc = 0;
+    char *argv[3] = {NULL};
 
     dwError = check_connection_integrity(hBinding);
     BAIL_ON_PMD_ERROR(dwError);
@@ -1719,11 +1722,20 @@ netmgr_privsep_rpc_set_iaid(
     dwError = PMDAllocateStringAFromW(pwszInterfaceName, &pszIfName);
     BAIL_ON_PMD_ERROR(dwError);
 
-    dwError = nm_set_iaid(pszIfName, (uint32_t)dwIaid);
+    dwError = PMDAllocateStringPrintf(&pszIaid, "%u", (uint32_t)dwIaid);
     BAIL_ON_PMD_ERROR(dwError);
+
+    argv[1] = pszIfName;
+    argv[2] = pszIaid;
+    if (ncm_link_set_dhcp_client_iaid(argc, argv) < 0)
+    {
+        dwError = ERROR_PMD_NET_CMD_FAIL;
+        BAIL_ON_PMD_ERROR(dwError);
+    }
 
 cleanup:
     PMD_SAFE_FREE_MEMORY(pszIfName);
+    PMD_SAFE_FREE_MEMORY(pszIaid);
     return dwError;
 error:
     goto cleanup;
@@ -1777,6 +1789,8 @@ netmgr_privsep_rpc_set_duid(
     uint32_t dwError = 0;
     char *pszIfName = NULL;
     char *pszDuid = NULL;
+    int argc = 0;
+    char *argv[3] = {NULL};
 
     dwError = check_connection_integrity(hBinding);
     BAIL_ON_PMD_ERROR(dwError);
@@ -1793,8 +1807,13 @@ netmgr_privsep_rpc_set_duid(
         BAIL_ON_PMD_ERROR(dwError);
     }
 
-    dwError = nm_set_duid(pszIfName, pszDuid);
-    BAIL_ON_PMD_ERROR(dwError);
+    argv[1] = pszIfName;
+    argv[2] = pszDuid;
+    if (ncm_link_set_dhcp_client_duid(argc, argv) < 0)
+    {
+        dwError = ERROR_PMD_NET_CMD_FAIL;
+        BAIL_ON_PMD_ERROR(dwError);
+    }
 
 cleanup:
     PMD_SAFE_FREE_MEMORY(pszIfName);

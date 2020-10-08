@@ -17,7 +17,6 @@
 #include <net/if.h>
 #include <arpa/inet.h>
 #include "../includes.h"
-#include "structs.h"
 #include "prototypes.h"
 #include "netmgmt_h.h"
 #include <netmgmt/netmgr.h>

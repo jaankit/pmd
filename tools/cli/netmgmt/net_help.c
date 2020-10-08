@@ -46,8 +46,10 @@ int cli_manager_new(CliManager **ret) {
 #if 0
                 { "set-dhcp-mode",                2,        WORD_ANY, false, ncmcli_link_set_dhcp_mode },
                 { "set-dhcp4-client-identifier",  2,        WORD_ANY, false, ncmcli_link_set_dhcp4_client_identifier},
+#endif
                 { "set-dhcp-iaid",                2,        WORD_ANY, false, ncmcli_link_set_dhcp_client_iaid},
                 { "set-dhcp-duid",                2,        WORD_ANY, false, ncmcli_link_set_dhcp_client_duid},
+#if 0
                 { "set-link-state",               2,        WORD_ANY, false, ncmcli_link_update_state },
                 { "add-link-address",             2,        WORD_ANY, false, ncmcli_link_add_address },
                 { "delete-link-address",          1,        WORD_ANY, false, ncmcli_link_delete_address },

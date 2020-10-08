@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "structs.h"
+
 #define WORD_ANY ((unsigned) -1)
 
 uint32_t
@@ -58,6 +60,20 @@ ncmcli_link_set_mac(
 
 uint32_t
 ncmcli_link_set_mode(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+);
+
+uint32_t
+ncmcli_link_set_dhcp_client_iaid(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+);
+
+uint32_t
+ncmcli_link_set_dhcp_client_duid(
     PPMDHANDLE hPMD,
     int argc,
     char *argv[]
