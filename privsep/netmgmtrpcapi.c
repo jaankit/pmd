@@ -72,6 +72,8 @@ netmgr_privsep_rpc_set_mac_addr(
     uint32_t dwError = 0;
     char *pszIfName = NULL;
     char *pszMacAddr = NULL;
+    int argc = 0;
+    char *argv[3] = {NULL};
 
     dwError = check_connection_integrity(hBinding);
     BAIL_ON_PMD_ERROR(dwError);
@@ -91,8 +93,13 @@ netmgr_privsep_rpc_set_mac_addr(
         BAIL_ON_PMD_ERROR(dwError);
     }
 
-    dwError = nm_set_link_mac_addr(pszIfName, pszMacAddr);
-    BAIL_ON_PMD_ERROR(dwError);
+    argv[1] = pszIfName;
+    argv[2] = pszMacAddr;
+    if (ncm_link_set_mac(argc, argv) < 0)
+    {
+	dwError = ERROR_PMD_NET_CMD_FAIL;
+	BAIL_ON_PMD_ERROR(dwError);
+    }
 
 cleanup:
     PMD_SAFE_FREE_MEMORY(pszIfName);
@@ -161,6 +168,9 @@ netmgr_privsep_rpc_set_link_mode(
 {
     uint32_t dwError = 0;
     char *pszIfName = NULL;
+    char *pszMode = NULL;
+    int argc = 0;
+    char *argv[3] = {NULL};
 
     dwError = check_connection_integrity(hBinding);
     BAIL_ON_PMD_ERROR(dwError);
@@ -174,11 +184,17 @@ netmgr_privsep_rpc_set_link_mode(
     dwError = PMDAllocateStringAFromW(pwszInterfaceName, &pszIfName);
     BAIL_ON_PMD_ERROR(dwError);
 
-    dwError = nm_set_link_mode(pszIfName, linkMode);
+    dwError = PMDAllocateStringPrintf(&pszMode, "%u", linkMode);
+    BAIL_ON_PMD_ERROR(dwError);
+
+    argv[1] = pszIfName;
+    argv[2] = pszMode;
+    dwError = ncm_link_set_mode(argc, argv);
     BAIL_ON_PMD_ERROR(dwError);
 
 cleanup:
     PMD_SAFE_FREE_MEMORY(pszIfName);
+    PMD_SAFE_FREE_MEMORY(pszMode);
     return dwError;
 error:
     goto cleanup;
@@ -264,6 +280,7 @@ netmgr_privsep_rpc_set_link_mtu(
 
 cleanup:
     PMD_SAFE_FREE_MEMORY(pszIfName);
+    PMD_SAFE_FREE_MEMORY(pszMtu);
     return dwError;
 error:
     goto cleanup;

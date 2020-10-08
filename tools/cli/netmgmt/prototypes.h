@@ -50,6 +50,20 @@ ncmcli_link_set_mtu(
 );
 
 uint32_t
+ncmcli_link_set_mac(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+);
+
+uint32_t
+ncmcli_link_set_mode(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+);
+
+uint32_t
 ncmcli_set_system_hostname(
     PPMDHANDLE hPMD,
     int argc,

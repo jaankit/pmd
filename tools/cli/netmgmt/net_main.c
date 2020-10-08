@@ -89,6 +89,63 @@ error:
 }
 
 uint32_t
+ncmcli_link_set_mac(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+)
+{
+    uint32_t dwError = 0;
+    char *pszEnd = NULL;
+    uint32_t mtu = 0;
+
+    if(!hPMD || !argv[1] || !argv[2])
+    {
+        dwError = ERROR_PMD_INVALID_PARAMETER;
+        BAIL_ON_CLI_ERROR(dwError);
+    }
+    dwError = netmgr_client_set_mac_addr(hPMD, argv[1], argv[2]);
+    BAIL_ON_CLI_ERROR(dwError);
+
+cleanup:
+    return dwError;
+error:
+    goto cleanup;
+}
+
+uint32_t
+ncmcli_link_set_mode(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+)
+{
+    uint32_t dwError = 0;
+    NET_LINK_MODE linkMode = LINK_MODE_UNKNOWN;
+
+    if(!hPMD || !argv[1] || !argv[2])
+    {
+        dwError = ERROR_PMD_INVALID_PARAMETER;
+        BAIL_ON_CLI_ERROR(dwError);
+    }
+    if (!strcmp(argv[2], "yes") || !strcmp(argv[2], "on") || !strcmp(argv[2], "1"))
+    {
+	linkMode = LINK_MANUAL;
+    }
+    else if (!strcmp(argv[2], "no") || !strcmp(argv[2], "off") || !strcmp(argv[2], "0"))
+    {
+	linkMode = LINK_AUTO;
+    }
+    dwError = netmgr_client_set_link_mode(hPMD, argv[1], linkMode);
+    BAIL_ON_CLI_ERROR(dwError);
+
+cleanup:
+    return dwError;
+error:
+    goto cleanup;
+}
+
+uint32_t
 ncmcli_set_system_hostname(
     PPMDHANDLE hPMD,
     int argc,

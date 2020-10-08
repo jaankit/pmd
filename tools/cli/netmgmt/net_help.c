@@ -41,9 +41,9 @@ int cli_manager_new(CliManager **ret) {
                 { "status",                       WORD_ANY, WORD_ANY, true,  ncmcli_system_status },
                 { "show",                         WORD_ANY, WORD_ANY, false, ncmcli_link_status },
                 { "set-mtu",                      2,        WORD_ANY, false, ncmcli_link_set_mtu },
-#if 0
                 { "set-mac",                      2,        WORD_ANY, false, ncmcli_link_set_mac },
                 { "set-link-mode",                2,        WORD_ANY, false, ncmcli_link_set_mode },
+#if 0
                 { "set-dhcp-mode",                2,        WORD_ANY, false, ncmcli_link_set_dhcp_mode },
                 { "set-dhcp4-client-identifier",  2,        WORD_ANY, false, ncmcli_link_set_dhcp4_client_identifier},
                 { "set-dhcp-iaid",                2,        WORD_ANY, false, ncmcli_link_set_dhcp_client_iaid},
