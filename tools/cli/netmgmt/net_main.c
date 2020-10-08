@@ -63,6 +63,32 @@ error:
 }
 
 uint32_t
+ncmcli_link_set_mtu(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+)
+{
+    uint32_t dwError = 0;
+    char *pszEnd = NULL;
+    uint32_t mtu = 0;
+
+    if(!hPMD || !argv[1] || !argv[2])
+    {
+        dwError = ERROR_PMD_INVALID_PARAMETER;
+        BAIL_ON_CLI_ERROR(dwError);
+    }
+    mtu = (uint32_t)strtoul(argv[2], &pszEnd, 10);
+    dwError = netmgr_client_set_link_mtu(hPMD, argv[1], mtu);
+    BAIL_ON_CLI_ERROR(dwError);
+
+cleanup:
+    return dwError;
+error:
+    goto cleanup;
+}
+
+uint32_t
 ncmcli_set_system_hostname(
     PPMDHANDLE hPMD,
     int argc,

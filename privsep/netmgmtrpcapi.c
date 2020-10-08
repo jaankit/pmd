@@ -235,6 +235,9 @@ netmgr_privsep_rpc_set_link_mtu(
 {
     uint32_t dwError = 0;
     char *pszIfName = NULL;
+    char *pszMtu = NULL;
+    int argc = 0;
+    char *argv[3] = {NULL};
 
     dwError = check_connection_integrity(hBinding);
     BAIL_ON_PMD_ERROR(dwError);
@@ -248,8 +251,16 @@ netmgr_privsep_rpc_set_link_mtu(
     dwError = PMDAllocateStringAFromW(pwszInterfaceName, &pszIfName);
     BAIL_ON_PMD_ERROR(dwError);
 
-    dwError = nm_set_link_mtu(pszIfName, mtu);
+    dwError = PMDAllocateStringPrintf(&pszMtu, "%u", mtu);
     BAIL_ON_PMD_ERROR(dwError);
+
+    argv[1] = pszIfName;
+    argv[2] = pszMtu;
+    if (ncm_link_set_mtu(argc, argv) < 0)
+    {
+	dwError = ERROR_PMD_NET_CMD_FAIL;
+	BAIL_ON_PMD_ERROR(dwError);
+    }
 
 cleanup:
     PMD_SAFE_FREE_MEMORY(pszIfName);

@@ -214,8 +214,8 @@ AC_CHECK_LIB(
 
 AC_SUBST(LWBASE_LIBS)
 
-GLIB_PREFIX="`$PKG_CONFIG --variable=prefix glib-2.0`"
-AC_SUBST(GLIB_PREFIX)
+GLIBBASE_LIBS="-lglib-2.0"
+AC_SUBST(GLIBBASE_LIBS)
 
 #tdnf
 PKG_CHECK_MODULES([TDNF], [tdnf], [have_libtdnf=yes], [have_libtdnf=no])

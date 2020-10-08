@@ -40,8 +40,8 @@ int cli_manager_new(CliManager **ret) {
         static const Cli cli_commands[] = {
                 { "status",                       WORD_ANY, WORD_ANY, true,  ncmcli_system_status },
                 { "show",                         WORD_ANY, WORD_ANY, false, ncmcli_link_status },
-#if 0
                 { "set-mtu",                      2,        WORD_ANY, false, ncmcli_link_set_mtu },
+#if 0
                 { "set-mac",                      2,        WORD_ANY, false, ncmcli_link_set_mac },
                 { "set-link-mode",                2,        WORD_ANY, false, ncmcli_link_set_mode },
                 { "set-dhcp-mode",                2,        WORD_ANY, false, ncmcli_link_set_dhcp_mode },
