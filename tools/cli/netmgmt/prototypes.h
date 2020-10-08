@@ -80,6 +80,13 @@ ncmcli_link_set_dhcp_client_duid(
 );
 
 uint32_t
+ncmcli_link_update_state(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+);
+
+uint32_t
 ncmcli_set_system_hostname(
     PPMDHANDLE hPMD,
     int argc,

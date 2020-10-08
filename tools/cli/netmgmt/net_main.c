@@ -180,7 +180,36 @@ ncmcli_link_set_dhcp_client_duid(
         dwError = ERROR_PMD_INVALID_PARAMETER;
         BAIL_ON_CLI_ERROR(dwError);
     }
-    dwError = netmgr_client_set_duid(hPMD, argv[1], argv[2]);
+    dwError = netmgr_client_set_duid(hPMD, argv[1], argv[2], argv[3]);
+    BAIL_ON_CLI_ERROR(dwError);
+
+cleanup:
+    return dwError;
+error:
+    goto cleanup;
+}
+
+uint32_t
+ncmcli_link_update_state(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+)
+{
+    uint32_t dwError = ERROR_PMD_NET_INVALID_PARAMETER;
+
+    if(!hPMD || !argv[1] || !argv[2])
+    {
+        dwError = ERROR_PMD_INVALID_PARAMETER;
+    }
+    else if (!strcmp(argv[2], "up"))
+    {
+        dwError = netmgr_client_ifup(hPMD, argv[1]);
+    }
+    else if (!strcmp(argv[2], "down"))
+    {
+	dwError = netmgr_client_ifdown(hPMD, argv[1]);
+    }
     BAIL_ON_CLI_ERROR(dwError);
 
 cleanup:

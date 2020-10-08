@@ -485,6 +485,12 @@
                   "description":"interface name",
                   "required":false,
                   "type":"string"
+                  }, {
+                  "name":"rawdata",
+                  "in":"query",
+                  "description":"duid raw data",
+                  "required":false,
+                  "type":"string"
                   }
                  ],
     "responses":{

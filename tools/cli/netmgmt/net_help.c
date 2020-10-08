@@ -49,8 +49,8 @@ int cli_manager_new(CliManager **ret) {
 #endif
                 { "set-dhcp-iaid",                2,        WORD_ANY, false, ncmcli_link_set_dhcp_client_iaid},
                 { "set-dhcp-duid",                2,        WORD_ANY, false, ncmcli_link_set_dhcp_client_duid},
-#if 0
                 { "set-link-state",               2,        WORD_ANY, false, ncmcli_link_update_state },
+#if 0
                 { "add-link-address",             2,        WORD_ANY, false, ncmcli_link_add_address },
                 { "delete-link-address",          1,        WORD_ANY, false, ncmcli_link_delete_address },
                 { "add-default-gateway",          2,        WORD_ANY, false, ncmcli_link_add_default_gateway },

@@ -291,7 +291,8 @@ interface netmgmt
     netmgr_rpc_set_duid(
         [in] handle_t hBinding,
         [in] wstring_t pwszInterfaceName,
-        [in] wstring_t pwszDuid
+        [in] wstring_t pwszDuid,
+        [in] wstring_t pwszRawdata
     );
 
     unsigned32

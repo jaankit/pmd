@@ -335,7 +335,11 @@ netmgr_privsep_rpc_set_link_state(
 )
 {
     uint32_t dwError = 0;
+    int argc = 0;
+    char *argv[3] = {NULL};
     char *pszIfName = NULL;
+    char *pszLinkstate = NULL;
+    char *state;
 
     dwError = check_connection_integrity(hBinding);
     BAIL_ON_PMD_ERROR(dwError);
@@ -349,11 +353,30 @@ netmgr_privsep_rpc_set_link_state(
     dwError = PMDAllocateStringAFromW(pwszInterfaceName, &pszIfName);
     BAIL_ON_PMD_ERROR(dwError);
 
-    dwError = nm_set_link_state(pszIfName, linkState);
+    if (linkState == RPC_LINK_DOWN)
+    {
+	state = "down";
+    } else if (linkState == RPC_LINK_UP)
+    {
+	state = "up";
+    } else
+    {
+	state = "unknown";
+    }
+    dwError = PMDAllocateStringPrintf(&pszLinkstate, "%s", state);
     BAIL_ON_PMD_ERROR(dwError);
+
+    argv[1] = pszIfName;
+    argv[2] = pszLinkstate;
+    if (ncm_link_update_state(argc, argv) < 0)
+    {
+	dwError = ERROR_PMD_NET_CMD_FAIL;
+	BAIL_ON_PMD_ERROR(dwError);
+    }
 
 cleanup:
     PMD_SAFE_FREE_MEMORY(pszIfName);
+    PMD_SAFE_FREE_MEMORY(pszLinkstate);
     return dwError;
 error:
     goto cleanup;
@@ -1783,14 +1806,16 @@ unsigned32
 netmgr_privsep_rpc_set_duid(
     handle_t hBinding,
     wstring_t pwszInterfaceName,
-    wstring_t pwszDuid
+    wstring_t pwszDuid,
+    wstring_t pwszRawdata
 )
 {
     uint32_t dwError = 0;
     char *pszIfName = NULL;
     char *pszDuid = NULL;
+    char *pszRawdata = NULL;
     int argc = 0;
-    char *argv[3] = {NULL};
+    char *argv[4] = {NULL};
 
     dwError = check_connection_integrity(hBinding);
     BAIL_ON_PMD_ERROR(dwError);
@@ -1807,8 +1832,14 @@ netmgr_privsep_rpc_set_duid(
         BAIL_ON_PMD_ERROR(dwError);
     }
 
+    if (pszRawdata)
+    {
+        dwError = PMDAllocateStringAFromW(pwszRawdata, &pszRawdata);
+        BAIL_ON_PMD_ERROR(dwError);
+    }
     argv[1] = pszIfName;
     argv[2] = pszDuid;
+    argv[3] = pszRawdata;
     if (ncm_link_set_dhcp_client_duid(argc, argv) < 0)
     {
         dwError = ERROR_PMD_NET_CMD_FAIL;
@@ -1818,6 +1849,7 @@ netmgr_privsep_rpc_set_duid(
 cleanup:
     PMD_SAFE_FREE_MEMORY(pszIfName);
     PMD_SAFE_FREE_MEMORY(pszDuid);
+    PMD_SAFE_FREE_MEMORY(pszRawdata);
     return dwError;
 error:
     goto cleanup;

@@ -275,7 +275,8 @@ uint32_t
 netmgr_client_set_duid(
     PPMDHANDLE hHandle,
     char *pszIfname,
-    char *pszDuid
+    char *pszDuid,
+    char *pszRawdata
     );
 
 //ntpd related

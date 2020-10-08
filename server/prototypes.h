@@ -597,7 +597,8 @@ uint32_t
 netmgr_client_set_duid_w(
     PPMDHANDLE hHandle,
     wstring_t pwszIfname,
-    wstring_t pwszDuid
+    wstring_t pwszDuid,
+    wstring_t pwszRawdata
     );
 
 uint32_t

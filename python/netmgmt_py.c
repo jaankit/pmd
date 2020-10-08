@@ -204,22 +204,24 @@ set_dhcp_duid(
 {
     uint32_t dwError = 0;
     char *pszDuid = NULL;
+    char *pszRawdata = NULL;
     char *pszInterfaceName = NULL;
-    static char *kwlist[] = {"duid", "ifname", NULL};
+    static char *kwlist[] = {"duid", "rawdata", "ifname", NULL};
     PyObject *pyRes = Py_None;
 
     if (!PyArg_ParseTupleAndKeywords(arg,
                                      kwds,
-                                     "s|s",
+                                     "s|s|s",
                                      kwlist,
                                      &pszDuid,
+                                     &pszRawdata,
                                      &pszInterfaceName))
     {
         dwError = ERROR_PMD_INVALID_PARAMETER;
         BAIL_ON_PMD_ERROR(dwError);
     }
 
-    dwError = netmgr_client_set_duid(self->hHandle, pszInterfaceName, pszDuid);
+    dwError = netmgr_client_set_duid(self->hHandle, pszInterfaceName, pszDuid, pszRawdata);
     BAIL_ON_PMD_ERROR(dwError);
 
 cleanup:
@@ -2523,7 +2525,7 @@ error:
 static PyMethodDef net_methods[] =
 {
     {"set_dhcp_duid", (PyCFunction)set_dhcp_duid, METH_VARARGS|METH_KEYWORDS,
-     "net.set_dhcp_duid(duid = \"11:22:33:44:55:66:77:20\", ifname = interfacename) \n\
+     "net.set_dhcp_duid(duid = uuid, rawdata = \"11:22:33:44:55:66:77:20\", ifname = interfacename) \n\
      set dhcp duid (interface optional). returns 0 if successful, exception on failure.\n"},
     {"get_dhcp_duid", (PyCFunction)get_dhcp_duid, METH_VARARGS|METH_KEYWORDS,
      "net.get_dhcp_duid(ifname = interface)\n\

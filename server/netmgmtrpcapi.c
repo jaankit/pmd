@@ -1309,7 +1309,8 @@ unsigned32
 netmgr_rpc_set_duid(
     handle_t hBinding,
     wstring_t pwszIfname,
-    wstring_t pwszDuid
+    wstring_t pwszDuid,
+    wstring_t pwszRawdata
 )
 {
     uint32_t dwError = 0;
@@ -1320,7 +1321,7 @@ netmgr_rpc_set_duid(
     dwError = rpc_open_privsep_internal(NET_PRIVSEP, &hPMD);
     BAIL_ON_PMD_ERROR(dwError);
 
-    dwError = netmgr_client_set_duid_w(hPMD, pwszIfname, pwszDuid);
+    dwError = netmgr_client_set_duid_w(hPMD, pwszIfname, pwszDuid, pwszRawdata);
     BAIL_ON_PMD_ERROR(dwError);
 
 cleanup:

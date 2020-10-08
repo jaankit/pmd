@@ -79,9 +79,10 @@ extern "C" {
 #define ERROR_PMD_ALTER_MODE_INVALID    (ERROR_PMD_PKG_BASE + 2)
 
 //netmgmt errors 4096 and up
-#define ERROR_PMD_NET_BASE             4096
-#define ERROR_PMD_NET_ALLOCATE_FAIL    (ERROR_PMD_NET_BASE + 1)
-#define ERROR_PMD_NET_CMD_FAIL         (ERROR_PMD_NET_BASE + 2)
+#define ERROR_PMD_NET_BASE              4096
+#define ERROR_PMD_NET_ALLOCATE_FAIL     (ERROR_PMD_NET_BASE + 1)
+#define ERROR_PMD_NET_CMD_FAIL          (ERROR_PMD_NET_BASE + 2)
+#define ERROR_PMD_NET_INVALID_PARAMETER (ERROR_PMD_NET_BASE + 3)
 
 //netmgmt errors 4300 and up
 #define ERROR_PMD_USR_BASE             4300

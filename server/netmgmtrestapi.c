@@ -991,6 +991,7 @@ net_rest_put_dhcp_duid(
     char *pszOutputJson = NULL;
     char *pszIfName = NULL;
     char *pszDuid= NULL;
+    char *pszRawdata= NULL;
     json_t *pJson = NULL;
     const char *pszInputJson = NULL;
     PPMDHANDLE hPMD = NULL;
@@ -1018,12 +1019,15 @@ net_rest_put_dhcp_duid(
 
         dwError = json_get_string_value(pJson, "duid", &pszDuid);
         BAIL_ON_PMD_ERROR(dwError);
+
+        dwError = json_get_string_value(pJson, "rawdata", &pszRawdata);
+        BAIL_ON_PMD_ERROR(dwError);
     }
 
     dwError = net_open_privsep_rest(pArgs->pAuthArgs->pRestAuth, &hPMD);
     BAIL_ON_PMD_ERROR(dwError);
 
-    dwError = netmgr_client_set_duid(hPMD, pszIfName, pszDuid);
+    dwError = netmgr_client_set_duid(hPMD, pszIfName, pszDuid, pszRawdata);
     BAIL_ON_PMD_ERROR(dwError);
 
     dwError = json_make_result_success(&pszOutputJson);

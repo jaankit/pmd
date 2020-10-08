@@ -3244,7 +3244,8 @@ uint32_t
 netmgr_client_set_duid_w(
     PPMDHANDLE hHandle,
     wstring_t pwszIfname,
-    wstring_t pwszDuid
+    wstring_t pwszDuid,
+    wstring_t pwszRawdata
    )
 {
     uint32_t dwError = 0;
@@ -3257,12 +3258,12 @@ netmgr_client_set_duid_w(
 
     if(hHandle->nPrivSep)
     {
-        DO_RPC(netmgr_privsep_rpc_set_duid(hHandle->hRpc, pwszIfname, pwszDuid),
+        DO_RPC(netmgr_privsep_rpc_set_duid(hHandle->hRpc, pwszIfname, pwszDuid, pwszRawdata),
                    dwError);
     }
     else
     {
-        DO_RPC(netmgr_rpc_set_duid(hHandle->hRpc, pwszIfname, pwszDuid),
+        DO_RPC(netmgr_rpc_set_duid(hHandle->hRpc, pwszIfname, pwszDuid, pwszRawdata),
                    dwError);
     }
 
@@ -3279,12 +3280,14 @@ uint32_t
 netmgr_client_set_duid(
     PPMDHANDLE hHandle,
     char *pszIfname,
-    char* pszDuid
+    char* pszDuid,
+    char* pszRawdata
    )
 {
     uint32_t dwError = 0;
     wstring_t pwszIfname = NULL;
     wstring_t pwszDuid = NULL;
+    wstring_t pwszRawdata = NULL;
 
     if(!hHandle)
     {
@@ -3304,12 +3307,19 @@ netmgr_client_set_duid(
         BAIL_ON_PMD_ERROR(dwError);
     }
 
-    dwError = netmgr_client_set_duid_w(hHandle, pwszIfname, pwszDuid);
+    if(pszRawdata)
+    {
+        dwError = PMDAllocateStringWFromA(pszRawdata, &pwszRawdata);
+        BAIL_ON_PMD_ERROR(dwError);
+    }
+
+    dwError = netmgr_client_set_duid_w(hHandle, pwszIfname, pwszDuid, pwszRawdata);
     BAIL_ON_PMD_ERROR(dwError);
 
 cleanup:
     PMDFreeMemory(pwszDuid);
     PMDFreeMemory(pwszIfname);
+    PMDFreeMemory(pwszRawdata);
     return dwError;
 
 error:
