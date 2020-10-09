@@ -87,6 +87,13 @@ ncmcli_link_update_state(
 );
 
 uint32_t
+ncmcli_link_add_route(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+);
+
+uint32_t
 ncmcli_set_system_hostname(
     PPMDHANDLE hPMD,
     int argc,

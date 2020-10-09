@@ -219,6 +219,51 @@ error:
 }
 
 uint32_t
+ncmcli_link_add_route(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+)
+{
+    uint32_t dwError = 0;
+    NET_IP_ROUTE ipRoute = {0};
+    char *pszMetric = NULL;
+
+    if(!hPMD || !argv[1] || !argv[2] || !argv[3])
+    {
+        dwError = ERROR_PMD_INVALID_PARAMETER;
+    }
+    dwError = PMDAllocateString(argv[1], &ipRoute.pszInterfaceName);
+    BAIL_ON_CLI_ERROR(dwError);
+
+    dwError = PMDAllocateString(argv[2], &ipRoute.pszDestNetwork);
+    BAIL_ON_CLI_ERROR(dwError);
+
+    dwError = PMDAllocateString(argv[3], &pszMetric);
+    if (dwError == ENOENT)
+    {
+	dwError = 0;
+	ipRoute.metric = 1024;
+    }
+    else
+    {
+        sscanf(pszMetric, "%u", &ipRoute.metric);
+    }
+    BAIL_ON_CLI_ERROR(dwError);
+
+    dwError = netmgr_client_add_static_ip_route(hPMD, &ipRoute);
+    BAIL_ON_CLI_ERROR(dwError);
+
+cleanup:
+    PMD_CLI_SAFE_FREE_MEMORY(ipRoute.pszInterfaceName);
+    PMD_CLI_SAFE_FREE_MEMORY(ipRoute.pszDestNetwork);
+    PMD_CLI_SAFE_FREE_MEMORY(pszMetric);
+    return dwError;
+error:
+    goto cleanup;
+}
+
+uint32_t
 ncmcli_set_system_hostname(
     PPMDHANDLE hPMD,
     int argc,
