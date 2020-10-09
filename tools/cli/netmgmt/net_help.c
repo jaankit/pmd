@@ -57,9 +57,7 @@ int cli_manager_new(CliManager **ret) {
                 { "delete-gateway",               1,        WORD_ANY, false, ncmcli_link_delete_gateway_or_route },
 #endif
                 { "add-route",                    2,        WORD_ANY, false, ncmcli_link_add_route },
-#if 0
                 { "delete-route",                 1,        WORD_ANY, false, ncmcli_link_delete_gateway_or_route },
-#endif
                 { "set-hostname",                 1,        WORD_ANY, false, ncmcli_set_system_hostname },
 #if 0
                 { "show-dns",                     WORD_ANY, WORD_ANY, false, ncmcli_show_dns_server },

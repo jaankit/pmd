@@ -264,6 +264,33 @@ error:
 }
 
 uint32_t
+ncmcli_link_delete_gateway_or_route(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+)
+{
+    uint32_t dwError = 0;
+    NET_IP_ROUTE ipRoute = {0};
+
+    if(!hPMD || !argv[1])
+    {
+        dwError = ERROR_PMD_INVALID_PARAMETER;
+    }
+    dwError = PMDAllocateString(argv[1], &ipRoute.pszInterfaceName);
+    BAIL_ON_CLI_ERROR(dwError);
+
+    dwError = netmgr_client_delete_static_ip_route(hPMD, &ipRoute);
+    BAIL_ON_CLI_ERROR(dwError);
+
+cleanup:
+    PMD_CLI_SAFE_FREE_MEMORY(ipRoute.pszInterfaceName);
+    return dwError;
+error:
+    goto cleanup;
+}
+
+uint32_t
 ncmcli_set_system_hostname(
     PPMDHANDLE hPMD,
     int argc,

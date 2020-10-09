@@ -1100,7 +1100,9 @@ netmgr_privsep_rpc_delete_static_ip_route(
 )
 {
     uint32_t dwError = 0;
-    NET_IP_ROUTE ipRoute = {0};
+    int argc = 0;
+    char *argv[2] = {NULL};
+    char *pszInterfaceName = NULL;
 
     dwError = check_connection_integrity(hBinding);
     BAIL_ON_PMD_ERROR(dwError);
@@ -1112,39 +1114,18 @@ netmgr_privsep_rpc_delete_static_ip_route(
     }
 
     dwError = PMDAllocateStringAFromW(pIpRoute->pwszInterfaceName,
-                                      &ipRoute.pszInterfaceName);
+                                      &pszInterfaceName);
     BAIL_ON_PMD_ERROR(dwError);
 
-    dwError = PMDAllocateStringAFromW(pIpRoute->pwszDestNetwork,
-                                      &ipRoute.pszDestNetwork);
-    BAIL_ON_PMD_ERROR(dwError);
-
-    if (pIpRoute->pwszGateway)
+    argv[1] = pszInterfaceName;
+    if (ncm_link_delete_gateway_or_route(argc, argv) < 0)
     {
-        dwError = PMDAllocateStringAFromW(pIpRoute->pwszGateway,
-                                          &ipRoute.pszGateway);
+	dwError = ERROR_PMD_NET_CMD_FAIL;
         BAIL_ON_PMD_ERROR(dwError);
     }
-
-    if (pIpRoute->pwszSourceNetwork)
-    {
-        dwError = PMDAllocateStringAFromW(pIpRoute->pwszSourceNetwork,
-                                          &ipRoute.pszSourceNetwork);
-        BAIL_ON_PMD_ERROR(dwError);
-    }
-
-    ipRoute.scope = (NET_ROUTE_SCOPE)pIpRoute->scope;
-    ipRoute.metric = pIpRoute->dwMetric;
-    ipRoute.table = pIpRoute->dwTableId;
-
-    dwError = nm_delete_static_ip_route(&ipRoute);
-    BAIL_ON_PMD_ERROR(dwError);
 
 cleanup:
-    PMD_SAFE_FREE_MEMORY(ipRoute.pszInterfaceName);
-    PMD_SAFE_FREE_MEMORY(ipRoute.pszDestNetwork);
-    PMD_SAFE_FREE_MEMORY(ipRoute.pszSourceNetwork);
-    PMD_SAFE_FREE_MEMORY(ipRoute.pszGateway);
+    PMD_SAFE_FREE_MEMORY(pszInterfaceName);
     return dwError;
 
 error:

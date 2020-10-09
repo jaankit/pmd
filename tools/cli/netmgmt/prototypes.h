@@ -94,6 +94,13 @@ ncmcli_link_add_route(
 );
 
 uint32_t
+ncmcli_link_delete_gateway_or_route(
+    PPMDHANDLE hPMD,
+    int argc,
+    char *argv[]
+);
+
+uint32_t
 ncmcli_set_system_hostname(
     PPMDHANDLE hPMD,
     int argc,
